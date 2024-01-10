@@ -93,7 +93,39 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                     else:
                         batch[key] = batch[key].to('cuda:0')
                 with autocast():
-                    loss = model(**batch).loss
+                    # loss = model(**batch).loss
+                    tmp = {
+                        'input_ids': batch['input_ids'],
+                        'labels': batch['labels'],
+                        'attention_mask': batch['attention_mask']}
+                    out1 = model(**tmp)
+                    logits1 = out1.logits
+
+                    if train_config.xconst_alpha == 0.0:
+                        loss = out1.loss
+                    else:
+                        tmp = {
+                            'input_ids': batch['input_ids_'],
+                            'labels': batch['labels_'],
+                            'attention_mask': batch['attention_mask_']}
+                        out2 = model(**tmp)
+                        logits2 = out2.logits
+                        cnt = 1e-4
+                        kl_loss = 0
+                        for i in range(batch['input_ids'].size(0)):
+                            start1 = batch['prompt_length'][i].item()
+                            end1 = int(sum(batch['attention_mask'][i]).item())
+                            start2 = batch['prompt_length_'][i].item()
+                            end2 = int(sum(batch['attention_mask_'][i]).item())
+                            if (end1 - start1) == (end2 - start2):
+                                omega1 = logits1[i][start1 - 1:end1 - 1, :]
+                                omega2 = logits2[i][start2 - 1:end2 - 1, :]
+                                prob = torch.nn.functional.softmax(omega1, dim=-1)
+                                kl_loss += torch.nn.functional.kl_div(
+                                    input=torch.nn.functional.log_softmax(omega2, dim=-1),
+                                    target=prob, reduction='sum')
+                                cnt += end1 - start1
+                        loss = out1.loss + train_config.xconst_alpha * (kl_loss / cnt)
                 loss = loss / gradient_accumulation_steps
                 if train_config.save_metrics:
                     train_step_loss.append(loss.detach().float().item())
@@ -122,8 +154,13 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                                 model.clip_grad_norm_(train_config.gradient_clipping_threshold)
                             else:
                                 torch.nn.utils.clip_grad_norm_(model.parameters(), train_config.gradient_clipping_threshold)
-                        optimizer.step()
-                        optimizer.zero_grad()
+                        # optimizer.step()
+                        # optimizer.zero_grad()
+                        if all([torch.isfinite(p.grad).all() for p in model.parameters() if p.requires_grad==True]):
+                            optimizer.step()
+                            optimizer.zero_grad()
+                        else:
+                            optimizer.zero_grad()
                         pbar.update(1)
 
                 pbar.set_description(f"Training Epoch: {epoch+1}/{train_config.num_epochs}, step {step}/{len(train_dataloader)} completed (loss: {loss.detach().float()})")
@@ -283,7 +320,12 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
             # Ensure no gradients are computed for this scope to save memory
             with torch.no_grad():
                 # Forward pass and compute loss
-                outputs = model(**batch)
+                # outputs = model(**batch)
+                tmp = {
+                    'input_ids': batch['input_ids'],
+                    'labels': batch['labels'],
+                    'attention_mask': batch['attention_mask']}
+                outputs = model(**tmp)
                 loss = outputs.loss
                 if train_config.save_metrics:
                     val_step_loss.append(loss.detach().float().item())

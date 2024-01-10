@@ -32,3 +32,12 @@ class custom_dataset:
     file: str = "examples/custom_dataset.py"
     train_split: str = "train"
     test_split: str = "validation"
+
+
+@dataclass
+class translation_dataset:
+    dataset: str = "translation_dataset"
+    prompt_type: str = "gpt-mt"
+    train_split: str = "train"
+    test_split: str = "val"
+    data_path: str = "src/llama_recipes/datasets/translation_data.json"
