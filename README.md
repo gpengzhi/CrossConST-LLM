@@ -84,11 +84,11 @@ python3 compute_comet.py --ckpt ${CKPT} --file_src ${SRC} --file_hyp ${HYP} --fi
 
 ### Result
 
-The overall performance is summarized as follows.
+The overall performance (SacreBLEU / COMET) is summarized as follows. Please note that the experimental result is slightly different from that in the paper.
 
 | Method          | Supervised Average | Zero-shot Average | 
 |-----------------|--------------------|-------------------|
-| ALMA-13B-LoRA   | 34.40 / 85.65      | 13.98 / 70.37     |
+| ALMA-13B-LoRA   | 34.23 / 85.62      | 13.96 / 70.27     |
 | &emsp; + XConST | 34.11 / 85.63      | 23.86 / 86.69     |
 
 ## Citation
