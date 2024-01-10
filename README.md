@@ -15,7 +15,8 @@ This work has been tested in the following environment.
 To install llama-recipes and develop locally:
 ```bash
 cd llama-recipes
-pip3 install --editable ./
+pip3 install -U pip setuptools
+pip3 install --extra-index-url https://download.pytorch.org/whl/test/cu118 -e .
 ```
 
 ## Reproduction
