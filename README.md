@@ -1,5 +1,5 @@
 # Towards Boosting Many-to-Many Multilingual Machine Translation with Large Language Models
-This repository contains the PyTorch implementation (**Unofficial**) for our arXiv paper "[Towards Boosting Many-to-Many Multilingual Machine Translation with Large Language Models]()".
+This repository contains the PyTorch implementation (**Unofficial**) for our arXiv paper "[Towards Boosting Many-to-Many Multilingual Machine Translation with Large Language Models](https://arxiv.org/abs/2401.05861)".
 
 ![](./figs/xconst.png)
 
@@ -98,7 +98,7 @@ If you find the resources in this repository helpful, please cite as:
 @article{gao2024xconst,
   title={Towards Boosting Many-to-Many Multilingual Machine Translation with Large Language Models},
   author={Gao, Pengzhi and He, Zhongjun and Wu, Hua and Wang, Haifeng},
-  journal={arXiv preprint arXiv:},
+  journal={arXiv preprint arXiv:2401.05861},
   year={2024}
 }
 ```
