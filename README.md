@@ -52,6 +52,7 @@ torchrun --nnodes 1 --nproc_per_node 8 llama-recipes/examples/finetuning.py --da
     --lr 1e-4 --gradient_accumulation_steps 8 \
     --use_peft --peft_method lora --output_dir ${CKPT} \
     --enable_fsdp --use_fast_kernels \
+    --batching_strategy padding \
     --xconst_alpha ${ALPHA} \
     1>logs/EXP.out 2>logs/EXP.err
 ```
